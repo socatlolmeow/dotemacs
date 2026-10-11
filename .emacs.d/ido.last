@@ -1,0 +1,30 @@
+;;; -*- coding: utf-8 -*-
+
+;; ----- ido-last-directory-list -----
+(
+ ("/home/" . "socat/")
+)
+
+;; ----- ido-work-directory-list -----
+(
+ "/home/socat/"
+)
+
+;; ----- ido-work-file-list -----
+(
+ "main.c"
+ "Documents"
+ "test.c"
+)
+
+;; ----- ido-dir-file-cache -----
+(
+ ("/home/socat/" (27330 5502 386006 469000) "test" "dots/" ".emacs.local/" "#test.c#" "test.c" ".bash_logout" "main.c" ".bash_profile" "Downloads/" ".bash_history" "#Documents#" ".local/" ".cache/" ".emacs.snippets/" "./" "yay/" ".bashrc" "#main.c#" ".emacs" ".emacs.custom.el" ".fehbg" "Documents" ".kiro/" ".semantic_search/" ".emacs.rc/" ".config/" ".emacs.d/" "../" ".startup")
+
+ ("/home/" (27330 1980 340194 466000) "./" "socat/" "../")
+
+ ("/home/socat/dots/" (27330 2900 421582 433000) "MANIFEST.linux" ".vimrc" ".git/" ".markut" ".i3status.conf" ".sqliterc" ".gdbinit" ".tmux.conf" ".jmacsrc" ".SciTEUser.properties" "settings.ini" ".gitconfig" "./" "DotFiles.psm1" "mpv.conf" ".gitignore" ".emacs.bak" ".Xresources" ".apvlvrc" "gf2_config.ini" ".fehbg" "MANIFEST" ".npmrc" ".nexrc" ".urxvt/" "../" ".screenlayout/" ".startup" ".ghci")
+)
+
+;; ----- ido-unc-hosts-cache -----
+t
