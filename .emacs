@@ -1,10 +1,12 @@
 ;;; .emacs --- init file -*- lexical-binding: t -*-
 (server-start)
 (setq custom-file "~/.emacs.custom.el")
+
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
 (add-to-list 'load-path "~/.emacs.local/")
-
 (load "~/.emacs.rc/rc.el")
 (load "~/.emacs.rc/misc-rc.el")
 (load "~/.emacs.rc/org-mode-rc.el")
@@ -97,12 +99,9 @@
   (set-frame-parameter nil 'alpha-background value))
 
 ;; Apply on every new frame (e.g. emacsclient)
-(add-to-list 'default-frame-alist '(alpha-background . 93))
+(add-to-list 'default-frame-alist '(alpha-background . 100))
 
-;;; Theme: tokyo-night
-(rc/require 'tokyo-night)
-(load-theme 'tokyo-night t)
-
+(load-theme 'base16-rose-pine t)
 ;;; gcmh — magic GC hack to reduce GC pauses
 (rc/require 'gcmh)
 (setq gcmh-idle-delay 5
@@ -232,6 +231,18 @@
 ;;; display-line-numbers-mode
 (when (version<= "26.0.50" emacs-version)
   (global-display-line-numbers-mode))
+
+(defvar-local rc/line-number-remaps nil)
+
+(add-hook 'text-scale-mode-hook
+          (lambda ()
+            (mapc #'face-remap-remove-relative rc/line-number-remaps)
+            (setq rc/line-number-remaps
+                  (mapcar (lambda (face)
+                            (face-remap-add-relative
+                             face :height (expt text-scale-mode-step
+                                                text-scale-mode-amount)))
+                          '(line-number line-number-current-line)))))
 
 ;;; magit
 (rc/require 'cl-lib)
