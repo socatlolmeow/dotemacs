@@ -62,9 +62,9 @@
 
 ;;; Appearance
 
-;; Font: Maple Mono
+;; Font: Iosevka Nerd Font
 (defvar font-name "Iosevka Nerd Font")
-(defvar font-size 14)
+(defvar font-size 20)
 (set-frame-font (format "%s-%d" font-name font-size) t t)
 ;; Ensure default face is set explicitly so zoom (C-x C-+/-) looks clean
 (set-face-attribute 'default nil
@@ -101,7 +101,74 @@
 ;; Apply on every new frame (e.g. emacsclient)
 (add-to-list 'default-frame-alist '(alpha-background . 100))
 
-(load-theme 'base16-rose-pine t)
+;;; Themes
+(require 'cl-lib)
+(rc/require 'base16-theme)    ; provides all base16-* themes
+(rc/require 'doom-themes)     ; provides all doom-* themes
+(rc/require 'gruber-darker-theme)
+
+(setq doom-themes-enable-bold nil
+      doom-themes-enable-italic nil)
+
+(defvar rc/default-theme 'base16-rose-pine)
+(defvar rc/current-theme nil)
+(defvar rc/theme-file (no-littering-expand-var-file-name "last-theme"))
+
+(defun rc/available-themes ()
+  "Sorted list of base16, doom and gruber-darker theme names."
+  (sort (seq-filter
+         (lambda (name)
+           (string-match-p "\\`\\(base16-\\|doom-\\|gruber-darker\\)" name))
+         (mapcar #'symbol-name (custom-available-themes)))
+        #'string<))
+
+(defun rc/save-theme (theme)
+  (make-directory (file-name-directory rc/theme-file) t)
+  (with-temp-file rc/theme-file
+    (prin1 theme (current-buffer))))
+
+(defun rc/saved-theme ()
+  (when (file-exists-p rc/theme-file)
+    (ignore-errors
+      (with-temp-buffer
+        (insert-file-contents rc/theme-file)
+        (read (current-buffer))))))
+
+(defun rc/load-theme (theme)
+  "Disable all current themes and load THEME."
+  (mapc #'disable-theme custom-enabled-themes)
+  (load-theme theme t)
+  (setq rc/current-theme theme)
+  (rc/save-theme theme)
+  (message "Theme: %s" theme))
+
+(defun rc/switch-theme (theme)
+  "Pick a theme from base16, doom and gruber-darker."
+  (interactive
+   (list (intern (completing-read
+                  "Theme: " (rc/available-themes) nil t nil nil
+                  (and rc/current-theme (symbol-name rc/current-theme))))))
+  (rc/load-theme theme))
+
+(defun rc/cycle-theme (step)
+  (let* ((themes (rc/available-themes))
+         (pos (or (cl-position (symbol-name rc/current-theme) themes :test #'string=) 0))
+         (next (nth (mod (+ pos step) (length themes)) themes)))
+    (rc/load-theme (intern next))))
+
+(defun rc/next-theme () (interactive) (rc/cycle-theme 1))
+(defun rc/previous-theme () (interactive) (rc/cycle-theme -1))
+
+(global-set-key (kbd "C-c t t") #'rc/switch-theme)
+(global-set-key (kbd "C-c t n") #'rc/next-theme)
+(global-set-key (kbd "C-c t p") #'rc/previous-theme)
+
+;; Load last used theme (falls back to the default)
+(let ((saved (rc/saved-theme)))
+  (rc/load-theme (if (and saved (member (symbol-name saved) (rc/available-themes)))
+                     saved
+                   rc/default-theme)))
+
 ;;; gcmh — magic GC hack to reduce GC pauses
 (rc/require 'gcmh)
 (setq gcmh-idle-delay 5
@@ -229,20 +296,10 @@
 (setq smooth-scroll-margin 5)
 
 ;;; display-line-numbers-mode
+;; Line-number faces inherit from `default', so they scale with
+;; text-scale on their own. No extra remapping needed.
 (when (version<= "26.0.50" emacs-version)
   (global-display-line-numbers-mode))
-
-(defvar-local rc/line-number-remaps nil)
-
-(add-hook 'text-scale-mode-hook
-          (lambda ()
-            (mapc #'face-remap-remove-relative rc/line-number-remaps)
-            (setq rc/line-number-remaps
-                  (mapcar (lambda (face)
-                            (face-remap-add-relative
-                             face :height (expt text-scale-mode-step
-                                                text-scale-mode-amount)))
-                          '(line-number line-number-current-line)))))
 
 ;;; magit
 (rc/require 'cl-lib)
