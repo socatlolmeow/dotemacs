@@ -31,6 +31,7 @@
       x-gtk-use-system-tooltips nil
       use-dialog-box nil
       auto-window-vscroll nil
+
       vc-follow-symlinks t
       confirm-kill-processes nil
       echo-keystrokes 0.5
@@ -60,10 +61,10 @@
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-;;; Appearance
+(add-to-list 'custom-theme-load-path (expand-file-name "themes" user-emacs-directory))
 
 ;; Font: Iosevka Nerd Font
-(defvar font-name "Iosevka Nerd Font")
+(defvar font-name "Iosevka")
 (defvar font-size 20)
 (set-frame-font (format "%s-%d" font-name font-size) t t)
 ;; Ensure default face is set explicitly so zoom (C-x C-+/-) looks clean
@@ -105,7 +106,9 @@
 (require 'cl-lib)
 (rc/require 'base16-theme)    ; provides all base16-* themes
 (rc/require 'doom-themes)     ; provides all doom-* themes
-(rc/require 'gruber-darker-theme)
+(rc/require 'gruber-darker-theme) ; provides Gruber Darker theme
+(rc/require 'ef-themes) ; provides all ef-* themes
+
 
 (setq doom-themes-enable-bold nil
       doom-themes-enable-italic nil)
@@ -115,10 +118,10 @@
 (defvar rc/theme-file (no-littering-expand-var-file-name "last-theme"))
 
 (defun rc/available-themes ()
-  "Sorted list of base16, doom and gruber-darker theme names."
+  "Sorted list of base16, doom, ef, gruber and socat theme names."
   (sort (seq-filter
          (lambda (name)
-           (string-match-p "\\`\\(base16-\\|doom-\\|gruber-darker\\)" name))
+           (string-match-p "\\`\\(base16-\\|doom-\\|gruber-darker\\|gruber-afterdark\\|socat-\\|ef-\\)" name))
          (mapcar #'symbol-name (custom-available-themes)))
         #'string<))
 
@@ -143,7 +146,7 @@
   (message "Theme: %s" theme))
 
 (defun rc/switch-theme (theme)
-  "Pick a theme from base16, doom and gruber-darker."
+  "Pick a theme from base16, doom, ef-themes, gruber and socat."
   (interactive
    (list (intern (completing-read
                   "Theme: " (rc/available-themes) nil t nil nil
@@ -237,6 +240,8 @@
 (require 'porth-mode)
 
 (require 'noq-mode)
+
+(require 'hare-mode)
 
 (require 'jai-mode)
 
